@@ -29,6 +29,7 @@
 
 - (void)jsq_configureTextField
 {
+    /*
     [self setTranslatesAutoresizingMaskIntoConstraints:NO];
 
     CGFloat cornerRadius = 6.0f;
@@ -54,7 +55,7 @@
 
     _placeHolder = nil;
     _placeHolderTextColor = [UIColor lightGrayColor];
-
+*/
     [self jsq_addTextViewNotificationObservers];
 }
 

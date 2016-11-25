@@ -205,7 +205,7 @@ JSQMessagesKeyboardControllerDelegate>
     [self jsq_updateCollectionViewInsets];
 
     // Don't set keyboardController if client creates custom content view via -loadToolbarContentView
-    if (self.inputToolbar.contentView.textField != nil) {
+    if (false || self.inputToolbar.contentView.textField != nil) {
         self.keyboardController = [[JSQMessagesKeyboardController alloc] initWithTextView:self.inputToolbar.contentView.textField
                                                                               contextView:self.view
                                                                      panGestureRecognizer:self.collectionView.panGestureRecognizer
