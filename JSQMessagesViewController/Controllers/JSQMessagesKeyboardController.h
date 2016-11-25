@@ -23,6 +23,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "JSQMessagesComposerTextField.h"
 
 @class JSQMessagesKeyboardController;
 
@@ -80,7 +81,7 @@ FOUNDATION_EXPORT NSString * const JSQMessagesKeyboardControllerUserInfoKeyKeybo
 /**
  *  The text view in which the user is editing with the system keyboard.
  */
-@property (weak, nonatomic, readonly) UITextView *textView;
+@property (weak, nonatomic) IBOutlet JSQMessagesComposerTextField *textField;
 
 /**
  *  The view in which the keyboard will be shown. This should be the parent or a sibling of `textView`.
@@ -125,7 +126,7 @@ FOUNDATION_EXPORT NSString * const JSQMessagesKeyboardControllerUserInfoKeyKeybo
  *
  *  @return An initialized `JSQMessagesKeyboardController` if created successfully, `nil` otherwise.
  */
-- (instancetype)initWithTextView:(UITextView *)textView
+- (instancetype)initWithTextView:(UITextField *)textField
                      contextView:(UIView *)contextView
             panGestureRecognizer:(UIPanGestureRecognizer *)panGestureRecognizer
                         delegate:(id<JSQMessagesKeyboardControllerDelegate>)delegate NS_DESIGNATED_INITIALIZER;

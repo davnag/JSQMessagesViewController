@@ -43,7 +43,7 @@
     self.senderId = kJSQDemoAvatarIdSquires;
     self.senderDisplayName = kJSQDemoAvatarDisplayNameSquires;
     
-    self.inputToolbar.contentView.textView.pasteDelegate = self;
+    self.inputToolbar.contentView.textField.pasteDelegate = self;
     
     /**
      *  Load up our fake data for the demo
@@ -351,7 +351,7 @@
 
 - (void)didPressAccessoryButton:(UIButton *)sender
 {
-    [self.inputToolbar.contentView.textView resignFirstResponder];
+    [self.inputToolbar.contentView.textField resignFirstResponder];
 
     UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:@"Media messages"
                                                        delegate:self
@@ -365,7 +365,7 @@
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
     if (buttonIndex == actionSheet.cancelButtonIndex) {
-        [self.inputToolbar.contentView.textView becomeFirstResponder];
+        [self.inputToolbar.contentView.textField becomeFirstResponder];
         return;
     }
     

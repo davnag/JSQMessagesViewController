@@ -19,7 +19,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "JSQMessagesComposerTextView.h"
+#import "JSQMessagesComposerTextField.h"
 
 /**
  *  A constant value representing the default spacing to use for the left and right edges 
@@ -37,7 +37,7 @@ FOUNDATION_EXPORT const CGFloat kJSQMessagesToolbarContentViewHorizontalSpacingD
 /**
  *  Returns the text view in which the user composes a message.
  */
-@property (weak, nonatomic, readonly) JSQMessagesComposerTextView *textView;
+@property (weak, nonatomic) IBOutlet JSQMessagesComposerTextField *textField;
 
 /**
  *  A custom button item displayed on the left of the toolbar content view.

@@ -49,19 +49,19 @@ typedef void (^JSQAnimationCompletionBlock)(BOOL finished);
 
 #pragma mark - Initialization
 
-- (instancetype)initWithTextView:(UITextView *)textView
+- (instancetype)initWithTextView:(UITextField *)textField
                      contextView:(UIView *)contextView
             panGestureRecognizer:(UIPanGestureRecognizer *)panGestureRecognizer
                         delegate:(id<JSQMessagesKeyboardControllerDelegate>)delegate
 
 {
-    NSParameterAssert(textView != nil);
+    NSParameterAssert(textField != nil);
     NSParameterAssert(contextView != nil);
     NSParameterAssert(panGestureRecognizer != nil);
 
     self = [super init];
     if (self) {
-        _textView = textView;
+        _textField = textField;
         _contextView = contextView;
         _panGestureRecognizer = panGestureRecognizer;
         _delegate = delegate;
@@ -116,12 +116,7 @@ typedef void (^JSQAnimationCompletionBlock)(BOOL finished);
 
 #pragma mark - Keyboard controller
 
-- (void)beginListeningForKeyboard
-{
-    if (self.textView.inputAccessoryView == nil) {
-        self.textView.inputAccessoryView = [[UIView alloc] init];
-    }
-
+- (void)beginListeningForKeyboard {
     [self jsq_registerForNotifications];
 }
 
@@ -167,7 +162,7 @@ typedef void (^JSQAnimationCompletionBlock)(BOOL finished);
 
 - (void)jsq_didReceiveKeyboardDidShowNotification:(NSNotification *)notification
 {
-    UIView *keyboardViewProxy = self.textView.inputAccessoryView.superview;
+    UIView *keyboardViewProxy = self.textField;
     if ([UIDevice jsq_isCurrentDeviceAfteriOS9]) {
         NSPredicate *windowPredicate = [NSPredicate predicateWithFormat:@"self isMemberOfClass: %@", NSClassFromString(@"UIRemoteKeyboardWindow")];
         UIWindow *keyboardWindow = [[UIApplication sharedApplication].windows filteredArrayUsingPredicate:windowPredicate].firstObject;
@@ -262,7 +257,7 @@ typedef void (^JSQAnimationCompletionBlock)(BOOL finished);
 {
     [self jsq_setKeyboardViewHidden:YES];
     [self jsq_removeKeyboardFrameObserver];
-    [self.textView resignFirstResponder];
+    [self.textField resignFirstResponder];
 }
 
 #pragma mark - Key-value observing

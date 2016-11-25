@@ -11,7 +11,7 @@
 #import <XCTest/XCTest.h>
 
 #import "JSQMessagesToolbarContentView.h"
-#import "JSQMessagesComposerTextView.h"
+#import "JSQMessagesComposerTextField.h"
 
 @interface JSQMessagesToolbarContentViewTests : XCTestCase
 
@@ -44,8 +44,8 @@
 {
     XCTAssertTrue(CGRectEqualToRect(self.contentView.frame, CGRectMake(0.0f, 0.0f, 320.0f, 44.0f)), @"Frame should be equal to default value");
     
-    XCTAssertNotNil(self.contentView.textView, @"Text view should not be nil");
-    XCTAssertTrue([self.contentView.textView isKindOfClass:[JSQMessagesComposerTextView class]], @"Text view should be a %@", [JSQMessagesComposerTextView class]);
+    XCTAssertNotNil(self.contentView.textField, @"Text view should not be nil");
+    XCTAssertTrue([self.contentView.textField isKindOfClass:[JSQMessagesComposerTextField class]], @"Text view should be a %@", [JSQMessagesComposerTextField class]);
     XCTAssertNil(self.contentView.leftBarButtonItem, @"Property should be equal to default value");
     XCTAssertNil(self.contentView.rightBarButtonItem, @"Property should be equal to default value");
 }

@@ -31,7 +31,7 @@
  */
 @interface JSQMessagesViewController : UIViewController <JSQMessagesCollectionViewDataSource,
                                                          JSQMessagesCollectionViewDelegateFlowLayout,
-                                                         UITextViewDelegate>
+                                                         UITextFieldDelegate>
 
 /**
  *  Returns the collection view object managed by this view controller.
@@ -323,5 +323,8 @@
  @param notification The posted notification.
  */
 - (void)didReceiveMenuWillHideNotification:(NSNotification *)notification;
+
+
+-(void)addNewTextField:(UITextField*)textField;
 
 @end

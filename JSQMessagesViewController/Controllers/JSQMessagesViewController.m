@@ -179,11 +179,11 @@ JSQMessagesKeyboardControllerDelegate>
     self.collectionView.delegate = self;
 
     self.inputToolbar.delegate = self;
-    self.inputToolbar.contentView.textView.placeHolder = [NSBundle jsq_localizedStringForKey:@"new_message"];
+    self.inputToolbar.contentView.textField.placeholder = [NSBundle jsq_localizedStringForKey:@"new_message"];
 
-    self.inputToolbar.contentView.textView.accessibilityLabel = [NSBundle jsq_localizedStringForKey:@"new_message"];
+    self.inputToolbar.contentView.textField.accessibilityLabel = [NSBundle jsq_localizedStringForKey:@"new_message"];
 
-    self.inputToolbar.contentView.textView.delegate = self;
+    self.inputToolbar.contentView.textField.delegate = self;
 
     self.automaticallyScrollsToMostRecentMessage = YES;
 
@@ -205,12 +205,22 @@ JSQMessagesKeyboardControllerDelegate>
     [self jsq_updateCollectionViewInsets];
 
     // Don't set keyboardController if client creates custom content view via -loadToolbarContentView
-    if (self.inputToolbar.contentView.textView != nil) {
-        self.keyboardController = [[JSQMessagesKeyboardController alloc] initWithTextView:self.inputToolbar.contentView.textView
+    if (self.inputToolbar.contentView.textField != nil) {
+        self.keyboardController = [[JSQMessagesKeyboardController alloc] initWithTextView:self.inputToolbar.contentView.textField
                                                                               contextView:self.view
                                                                      panGestureRecognizer:self.collectionView.panGestureRecognizer
                                                                                  delegate:self];
     }
+}
+
+-(void)addNewTextField:(UITextField*)textField {
+    self.inputToolbar.contentView.textField = textField;
+    self.keyboardController = [[JSQMessagesKeyboardController alloc] initWithTextView:textField
+                                                                          contextView:self.view
+                                                                 panGestureRecognizer:self.collectionView.panGestureRecognizer
+                                                                             delegate:self];
+    
+    [self.keyboardController beginListeningForKeyboard];
 }
 
 - (void)dealloc
@@ -221,7 +231,7 @@ JSQMessagesKeyboardControllerDelegate>
     _collectionView.dataSource = nil;
     _collectionView.delegate = nil;
 
-    _inputToolbar.contentView.textView.delegate = nil;
+    _inputToolbar.contentView.textField.delegate = nil;
     _inputToolbar.delegate = nil;
 
     [_keyboardController endListeningForKeyboard];
@@ -389,13 +399,12 @@ JSQMessagesKeyboardControllerDelegate>
 
 - (void)finishSendingMessageAnimated:(BOOL)animated {
 
-    UITextView *textView = self.inputToolbar.contentView.textView;
-    textView.text = nil;
-    [textView.undoManager removeAllActions];
+    UITextField* textField = self.inputToolbar.contentView.textField;
+    textField.text = nil;
 
     [self.inputToolbar toggleSendButtonEnabled];
 
-    [[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidChangeNotification object:textView];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UITextViewTextDidChangeNotification object:textField];
 
     [self.collectionView.collectionViewLayout invalidateLayoutWithContext:[JSQMessagesCollectionViewFlowLayoutInvalidationContext context]];
     [self.collectionView reloadData];
@@ -790,44 +799,48 @@ JSQMessagesKeyboardControllerDelegate>
 
 - (NSString *)jsq_currentlyComposedMessageText
 {
+    /*
     //  auto-accept any auto-correct suggestions
-    [self.inputToolbar.contentView.textView.inputDelegate selectionWillChange:self.inputToolbar.contentView.textView];
+    [self.inputToolbar.contentView.textField.inputDelegate selectionWillChange:self.inputToolbar.contentView.textView];
     [self.inputToolbar.contentView.textView.inputDelegate selectionDidChange:self.inputToolbar.contentView.textView];
-
-    return [self.inputToolbar.contentView.textView.text jsq_stringByTrimingWhitespace];
+*/
+    return [self.inputToolbar.contentView.textField.text jsq_stringByTrimingWhitespace];
 }
 
 #pragma mark - Text view delegate
 
-- (void)textViewDidBeginEditing:(UITextView *)textView
-{
-    if (textView != self.inputToolbar.contentView.textView) {
+-(void)textFieldDidBeginEditing:(UITextField *)textField {
+
+    if (textField != self.inputToolbar.contentView.textField) {
         return;
     }
 
-    [textView becomeFirstResponder];
+    [textField becomeFirstResponder];
 
     if (self.automaticallyScrollsToMostRecentMessage) {
         [self scrollToBottomAnimated:YES];
     }
 }
 
-- (void)textViewDidChange:(UITextView *)textView
-{
-    if (textView != self.inputToolbar.contentView.textView) {
-        return;
+-(BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    if (textField != self.inputToolbar.contentView.textField) {
+        return true;
     }
 
-    [self.inputToolbar toggleSendButtonEnabled];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self.inputToolbar toggleSendButtonEnabled];
+    });
+    
+    return true;
 }
 
-- (void)textViewDidEndEditing:(UITextView *)textView
-{
-    if (textView != self.inputToolbar.contentView.textView) {
+-(void)textFieldDidEndEditing:(UITextField *)textField {
+
+    if (textField != self.inputToolbar.contentView.textField) {
         return;
     }
 
-    [textView resignFirstResponder];
+    [textField resignFirstResponder];
 }
 
 #pragma mark - Notifications
@@ -883,7 +896,7 @@ JSQMessagesKeyboardControllerDelegate>
 {
     if (context == kJSQMessagesKeyValueObservingContext) {
 
-        if (object == self.inputToolbar.contentView.textView
+        if (object == self.inputToolbar.contentView.textField
             && [keyPath isEqualToString:NSStringFromSelector(@selector(contentSize))]) {
 
             CGSize oldContentSize = [[change objectForKey:NSKeyValueChangeOldKey] CGSizeValue];
@@ -904,7 +917,7 @@ JSQMessagesKeyboardControllerDelegate>
 
 - (void)keyboardController:(JSQMessagesKeyboardController *)keyboardController keyboardDidChangeFrame:(CGRect)keyboardFrame
 {
-    if (![self.inputToolbar.contentView.textView isFirstResponder] && self.toolbarBottomLayoutGuide.constant == 0.0) {
+    if (![self.inputToolbar.contentView.textField isFirstResponder] && self.toolbarBottomLayoutGuide.constant == 0.0) {
         return;
     }
 
@@ -940,12 +953,12 @@ JSQMessagesKeyboardControllerDelegate>
                 [self.snapshotView removeFromSuperview];
             }
 
-            self.textViewWasFirstResponderDuringInteractivePop = [self.inputToolbar.contentView.textView isFirstResponder];
+            self.textViewWasFirstResponderDuringInteractivePop = [self.inputToolbar.contentView.textField isFirstResponder];
 
             [self.keyboardController endListeningForKeyboard];
 
             if ([UIDevice jsq_isCurrentDeviceBeforeiOS8]) {
-                [self.inputToolbar.contentView.textView resignFirstResponder];
+                [self.inputToolbar.contentView.textField resignFirstResponder];
                 [UIView animateWithDuration:0.0
                                  animations:^{
                                      [self jsq_setToolbarBottomLayoutGuideConstant:0.0];
@@ -964,7 +977,7 @@ JSQMessagesKeyboardControllerDelegate>
         case UIGestureRecognizerStateFailed:
             [self.keyboardController beginListeningForKeyboard];
             if (self.textViewWasFirstResponderDuringInteractivePop) {
-                [self.inputToolbar.contentView.textView becomeFirstResponder];
+                [self.inputToolbar.contentView.textField becomeFirstResponder];
             }
 
             if ([UIDevice jsq_isCurrentDeviceBeforeiOS8]) {
@@ -986,15 +999,6 @@ JSQMessagesKeyboardControllerDelegate>
 - (void)jsq_adjustInputToolbarForComposerTextViewContentSizeChange:(CGFloat)dy
 {
     BOOL contentSizeIsIncreasing = (dy > 0);
-
-    if ([self jsq_inputToolbarHasReachedMaximumHeight]) {
-        BOOL contentOffsetIsPositive = (self.inputToolbar.contentView.textView.contentOffset.y > 0);
-
-        if (contentSizeIsIncreasing || contentOffsetIsPositive) {
-            [self jsq_scrollComposerTextViewToBottomAnimated:YES];
-            return;
-        }
-    }
 
     CGFloat toolbarOriginY = CGRectGetMinY(self.inputToolbar.frame);
     CGFloat newToolbarOriginY = toolbarOriginY - dy;
@@ -1033,21 +1037,10 @@ JSQMessagesKeyboardControllerDelegate>
 
 - (void)jsq_scrollComposerTextViewToBottomAnimated:(BOOL)animated
 {
-    UITextView *textView = self.inputToolbar.contentView.textView;
-    CGPoint contentOffsetToShowLastLine = CGPointMake(0.0f, textView.contentSize.height - CGRectGetHeight(textView.bounds));
+    UITextField *textView = self.inputToolbar.contentView.textField;
+    CGPoint contentOffsetToShowLastLine = CGPointMake(0.0f, textView.frame.size.height - CGRectGetHeight(textView.bounds));
 
-    if (!animated) {
-        textView.contentOffset = contentOffsetToShowLastLine;
-        return;
-    }
 
-    [UIView animateWithDuration:0.01
-                          delay:0.01
-                        options:UIViewAnimationOptionCurveLinear
-                     animations:^{
-                         textView.contentOffset = contentOffsetToShowLastLine;
-                     }
-                     completion:nil];
 }
 
 #pragma mark - Collection view utilities
@@ -1080,11 +1073,6 @@ JSQMessagesKeyboardControllerDelegate>
         return;
     }
 
-    [self.inputToolbar.contentView.textView addObserver:self
-                                             forKeyPath:NSStringFromSelector(@selector(contentSize))
-                                                options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew
-                                                context:kJSQMessagesKeyValueObservingContext];
-
     self.jsq_isObserving = YES;
 }
 
@@ -1093,13 +1081,6 @@ JSQMessagesKeyboardControllerDelegate>
     if (!_jsq_isObserving) {
         return;
     }
-
-    @try {
-        [_inputToolbar.contentView.textView removeObserver:self
-                                                forKeyPath:NSStringFromSelector(@selector(contentSize))
-                                                   context:kJSQMessagesKeyValueObservingContext];
-    }
-    @catch (NSException * __unused exception) { }
 
     _jsq_isObserving = NO;
 }

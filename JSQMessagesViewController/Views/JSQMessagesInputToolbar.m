@@ -106,7 +106,7 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
 
 - (void)toggleSendButtonEnabled
 {
-    BOOL hasText = [self.contentView.textView hasText];
+    BOOL hasText = [self.contentView.textField hasText];
 
     if (self.sendButtonOnRight) {
         self.contentView.rightBarButtonItem.enabled = hasText;
